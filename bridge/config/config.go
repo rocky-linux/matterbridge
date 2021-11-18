@@ -154,7 +154,7 @@ type Protocol struct {
 	SkipVersionCheck       bool       // mattermost
 	StripNick              bool       // all protocols
 	StripMarkdown          bool       // irc
-	SyncTopic              bool       // slack
+	SyncTopic              bool       // slack, mattermost, irc
 	TengoModifyMessage     string     // general
 	Team                   string     // mattermost, keybase
 	TeamID                 string     // msteams
