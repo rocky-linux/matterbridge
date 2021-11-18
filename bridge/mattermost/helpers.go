@@ -383,17 +383,38 @@ func (b *Bmattermost) isWebhookClient() bool {
 	return true
 }
 
-func (b *Bmattermost) getChannelID(channel config.ChannelInfo) (string, error) {
+func (b *Bmattermost) getChannelID(channel string) (string, error) {
 	var id string
 	if !b.isWebhookClient() {
 		if b.mc6 != nil {
-			id = b.mc6.GetChannelID(channel.Name, b.TeamID)
+			id = b.mc6.GetChannelID(channel, b.TeamID)
 		} else {
-			id = b.mc.GetChannelId(channel.Name, b.TeamID)
+			id = b.mc.GetChannelId(channel, b.TeamID)
 		}
 		if id == "" {
-			return "", fmt.Errorf("Could not find channel ID for channel %s", channel.Name)
+			return "", fmt.Errorf("could not find channel ID for channel %s", channel)
 		}
 	}
 	return id, nil
+}
+
+func (b *Bmattermost) changeChannelHeader(message config.Message) (bool, error) {
+	// not sure why this is here, assuming best practice from Bmattermost.JoinChannel()
+	if b.Account == mattermostPlugin {
+		return false, fmt.Errorf("ignoring this condition")
+	}
+
+	id, err := b.getChannelID(message.Channel)
+	if err != nil {
+		return false, err
+	}
+
+	var header = strings.TrimRight(message.Text, " ")
+
+	if b.mc6 != nil {
+		b.mc6.UpdateChannelHeader(id, header)
+	} else {
+		b.mc.UpdateChannelHeader(id, header)
+	}
+	return true, nil
 }

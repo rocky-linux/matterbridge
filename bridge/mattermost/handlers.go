@@ -169,6 +169,11 @@ func (b *Bmattermost) handleMatterClient(messages chan *config.Message) {
 			rmsg.Event = config.EventMsgDelete
 		}
 
+		// Propagate an EventTopicChange over the bridge if the header is changed
+		if message.Raw.Event == config.EventTopicChange && b.GetBool("SyncTopics") {
+			rmsg.Event = config.EventTopicChange
+		}
+
 		for _, id := range message.Post.FileIds {
 			err := b.handleDownloadFile(rmsg, id)
 			if err != nil {

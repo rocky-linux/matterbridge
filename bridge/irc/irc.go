@@ -166,6 +166,10 @@ func (b *Birc) Send(msg config.Message) (string, error) {
 		msg.Text = stripmd.Strip(msg.Text)
 	}
 
+	if b.GetBool("SyncTopics") && msg.Event == config.EventTopicChange {
+		return b.HandleTopicChange(&msg), nil
+	}
+
 	if b.GetBool("MessageSplit") {
 		msgLines = helper.GetSubLines(msg.Text, b.MessageLength, b.GetString("MessageClipped"))
 	} else {

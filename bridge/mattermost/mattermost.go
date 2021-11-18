@@ -109,33 +109,12 @@ func (b *Bmattermost) Disconnect() error {
 	return nil
 }
 
-func (b *Bmattermost) ChangeChannelHeader(channel config.ChannelInfo, newheader string) error {
-	// not sure why this is here, assuming best practice from BMattermost.JoinChannel()
-	if b.Account == mattermostPlugin {
-		return nil
-	}
-
-	id, err := b.getChannelID(channel)
-	if err != nil {
-		return err
-	}
-
-	b.mc6.UpdateChannelHeader(channel.ID, newheader)
-
-	if b.mc6 != nil {
-		b.mc6.UpdateChannelHeader(id, newheader)
-	} else {
-		b.mc.UpdateChannelHeader(id, newheader)
-	}
-	return nil
-}
-
 func (b *Bmattermost) JoinChannel(channel config.ChannelInfo) error {
 	if b.Account == mattermostPlugin {
 		return nil
 	}
 
-	id, err := b.getChannelID(channel)
+	id, err := b.getChannelID(channel.Name)
 	if err != nil {
 		return err
 	}
@@ -165,7 +144,11 @@ func (b *Bmattermost) Send(msg config.Message) (string, error) {
 
 	// Topic Change propagation from other bridges
 	if msg.Event == config.EventTopicChange {
-		return
+		status, err := b.changeChannelHeader(msg)
+		if !status || err != nil {
+			return "", err
+		}
+		return "", nil
 	}
 
 	// Use webhook to send the message
