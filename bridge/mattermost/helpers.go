@@ -360,7 +360,7 @@ func (b *Bmattermost) skipMessage6(message *matterclient6.Message) bool {
 }
 
 // Extracts the old and new topics out of a a system "topic_change" notification
-func (b *Bmattermost) ExtractTopic(topic string) (topicold string, topicnew string) {
+func (b *Bmattermost) extractTopic(topic string) (topicold string, topicnew string) {
 	//[0018] DEBUG irc:          [Send:bridge/irc/irc.go:141] => Receiving config.Message{Text:"neil updated the channel header from: bananananananaana to: bananana2", Channel:"##potato", Username:"<neil> ", UserID:"x1wkd3eeepgafb536qg3bemncw", Avatar:"", Account:"mattermost.potato", Event:"topic_change", Protocol:"mattermost", Gateway:"gateway1", ParentID:"", Timestamp:time.Date(2021, time.November, 18, 14, 47, 15, 943182536, time.Local), ID:"", Extra:map[string][]interface {}{}}
 
 	var pattern = regexp.MustCompile(`^(?P<username>[\w\s]+)\s?updated the channel header from:\s?(?P<topicold>.*)\sto:\s?(?P<topicnew>.*)$`)

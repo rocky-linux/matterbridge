@@ -171,8 +171,9 @@ func (b *Bmattermost) handleMatterClient(messages chan *config.Message) {
 
 		// Propagate an EventTopicChange over the bridge if the header is changed
 		if message.Type == "system_header_change" && b.GetBool("SyncTopics") {
+			b.Log.Debugf("<= Sending EventTopicChange from %s on %s to gateway", message.Channel, b.Account)
 			rmsg.Event = config.EventTopicChange
-			_, rmsg.Text = b.ExtractTopic(message.Text) // discard the old topic
+			_, rmsg.Text = b.extractTopic(message.Text) // discard the old topic
 		}
 
 		for _, id := range message.Post.FileIds {
@@ -232,8 +233,9 @@ func (b *Bmattermost) handleMatterClient6(messages chan *config.Message) {
 
 		// Propagate an EventTopicChange over the bridge if the header is changed
 		if message.Type == "system_header_change" && b.GetBool("SyncTopics") {
+			b.Log.Debugf("<= Sending EventTopicChange from %s on %s to gateway", message.Channel, b.Account)
 			rmsg.Event = config.EventTopicChange
-			_, rmsg.Text = b.ExtractTopic(message.Text) // discard the old topic
+			_, rmsg.Text = b.extractTopic(message.Text) // discard the old topic
 		}
 
 		for _, id := range message.Post.FileIds {
