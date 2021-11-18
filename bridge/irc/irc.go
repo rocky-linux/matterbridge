@@ -380,12 +380,3 @@ func (b *Birc) storeNames(client *girc.Client, event girc.Event) {
 func (b *Birc) formatnicks(nicks []string) string {
 	return strings.Join(nicks, ", ") + " currently on IRC"
 }
-
-/*
-	if !b.GetBool("SyncTopics") {
-		return
-	}
-	topic := strings.TrimRight(event.Last(), " ")
-	b.Log.Debugf("Channel '%s' changed topic to '%'", event.Params[1], topic)
-
-*/

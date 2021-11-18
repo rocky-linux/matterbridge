@@ -109,29 +109,42 @@ func (b *Bmattermost) Disconnect() error {
 	return nil
 }
 
+func (b *Bmattermost) ChangeChannelHeader(channel config.ChannelInfo, newheader string) error {
+	// not sure why this is here, assuming best practice from BMattermost.JoinChannel()
+	if b.Account == mattermostPlugin {
+		return nil
+	}
+
+	id, err := b.getChannelID(channel)
+	if err != nil {
+		return err
+	}
+
+	b.mc6.UpdateChannelHeader(channel.ID, newheader)
+
+	if b.mc6 != nil {
+		b.mc6.UpdateChannelHeader(id, newheader)
+	} else {
+		b.mc.UpdateChannelHeader(id, newheader)
+	}
+	return nil
+}
+
 func (b *Bmattermost) JoinChannel(channel config.ChannelInfo) error {
 	if b.Account == mattermostPlugin {
 		return nil
 	}
-	// we can only join channels using the API
-	if b.GetString("WebhookURL") == "" && b.GetString("WebhookBindAddress") == "" {
-		var id string
-		if b.mc6 != nil {
-			id = b.mc6.GetChannelID(channel.Name, b.TeamID)
-		} else {
-			id = b.mc.GetChannelId(channel.Name, b.TeamID)
-		}
-		if id == "" {
-			return fmt.Errorf("Could not find channel ID for channel %s", channel.Name)
-		}
 
-		if b.mc6 != nil {
-			return b.mc6.JoinChannel(id) // nolint:wrapcheck
-		}
-
-		return b.mc.JoinChannel(id)
+	id, err := b.getChannelID(channel)
+	if err != nil {
+		return err
 	}
-	return nil
+
+	if b.mc6 != nil {
+		return b.mc6.JoinChannel(id) // nolint:wrapcheck
+	}
+
+	return b.mc.JoinChannel(id)
 }
 
 func (b *Bmattermost) Send(msg config.Message) (string, error) {
@@ -148,6 +161,11 @@ func (b *Bmattermost) Send(msg config.Message) (string, error) {
 	// map the file SHA to our user (caches the avatar)
 	if msg.Event == config.EventAvatarDownload {
 		return b.cacheAvatar(&msg)
+	}
+
+	// Topic Change propagation from other bridges
+	if msg.Event == config.EventTopicChange {
+		return
 	}
 
 	// Use webhook to send the message

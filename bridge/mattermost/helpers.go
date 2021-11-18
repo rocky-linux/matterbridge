@@ -1,6 +1,7 @@
 package bmattermost
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -373,4 +374,26 @@ func (b *Bmattermost) getVersion() string {
 	defer resp.Body.Close()
 
 	return resp.Header.Get("X-Version-Id")
+}
+
+func (b *Bmattermost) isWebhookClient() bool {
+	if b.GetString("WebhookURL") == "" && b.GetString("WebhookBindAddress") == "" {
+		return false
+	}
+	return true
+}
+
+func (b *Bmattermost) getChannelID(channel config.ChannelInfo) (string, error) {
+	var id string
+	if !b.isWebhookClient() {
+		if b.mc6 != nil {
+			id = b.mc6.GetChannelID(channel.Name, b.TeamID)
+		} else {
+			id = b.mc.GetChannelId(channel.Name, b.TeamID)
+		}
+		if id == "" {
+			return "", fmt.Errorf("Could not find channel ID for channel %s", channel.Name)
+		}
+	}
+	return id, nil
 }

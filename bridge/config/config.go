@@ -147,7 +147,7 @@ type Protocol struct {
 	Server                 string     // IRC,mattermost,XMPP,discord,matrix
 	SessionFile            string     // msteams,whatsapp
 	ShowJoinPart           bool       // all protocols
-	ShowTopicChange        bool       // slack
+	ShowTopicChange        bool       // slack, mattermost, irc
 	ShowUserTyping         bool       // slack
 	ShowEmbeds             bool       // discord
 	SkipTLSVerify          bool       // IRC, mattermost
