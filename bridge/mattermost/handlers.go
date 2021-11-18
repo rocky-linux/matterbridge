@@ -170,8 +170,9 @@ func (b *Bmattermost) handleMatterClient(messages chan *config.Message) {
 		}
 
 		// Propagate an EventTopicChange over the bridge if the header is changed
-		if message.Raw.Event == config.EventTopicChange && b.GetBool("SyncTopics") {
+		if message.Type == "system_header_change" && b.GetBool("SyncTopics") {
 			rmsg.Event = config.EventTopicChange
+			_, rmsg.Text = b.ExtractTopic(message.Text) // discard the old topic
 		}
 
 		for _, id := range message.Post.FileIds {
@@ -227,6 +228,12 @@ func (b *Bmattermost) handleMatterClient6(messages chan *config.Message) {
 
 		if message.Raw.EventType() == model6.WebsocketEventPostDeleted {
 			rmsg.Event = config.EventMsgDelete
+		}
+
+		// Propagate an EventTopicChange over the bridge if the header is changed
+		if message.Type == "system_header_change" && b.GetBool("SyncTopics") {
+			rmsg.Event = config.EventTopicChange
+			_, rmsg.Text = b.ExtractTopic(message.Text) // discard the old topic
 		}
 
 		for _, id := range message.Post.FileIds {

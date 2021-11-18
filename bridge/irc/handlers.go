@@ -126,7 +126,8 @@ func (b *Birc) handleNewConnection(client *girc.Client, event girc.Event) {
 	i.Handlers.AddBg("PRIVMSG", b.handlePrivMsg)
 	i.Handlers.AddBg("CTCP_ACTION", b.handlePrivMsg)
 	i.Handlers.Add(girc.RPL_TOPICWHOTIME, b.handleTopicWhoTime)
-	i.Handlers.Add(girc.RPL_TOPIC, b.handleTopic)
+	//i.Handlers.Add(girc.RPL_TOPIC, b.handleTopic)
+	i.Handlers.Add(girc.TOPIC, b.handleTopic)
 	i.Handlers.AddBg(girc.NOTICE, b.handleNotice)
 	i.Handlers.AddBg("JOIN", b.handleJoinPart)
 	i.Handlers.AddBg("PART", b.handleJoinPart)
@@ -279,7 +280,7 @@ func (b *Birc) handleTopic(client *girc.Client, event girc.Event) {
 		UserID:   event.Source.Ident + "@" + event.Source.Host,
 	}
 
-	b.Log.Debugf("== Receiving RPL_TOPIC: [%s] changed topic to: %s %#v", event.Source.Name, event.Last(), event)
+	b.Log.Debugf("== Receiving TOPIC: [%s] changed topic to: %s %#v", event.Source.Name, event.Last(), event)
 
 	// Don't run if not confiured to
 	if !b.GetBool("SyncTopics") {
@@ -293,7 +294,7 @@ func (b *Birc) handleTopic(client *girc.Client, event girc.Event) {
 	rmsg.Event = config.EventTopicChange
 	rmsg.Text = topic
 
-	b.Log.Debugf("<= Sending message from %s on %s to gateway", event.Params[0], b.Account)
+	b.Log.Debugf("<= Sending EventTopicChange from %s on %s to gateway", event.Params[0], b.Account)
 	b.Remote <- rmsg
 }
 
