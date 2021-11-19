@@ -205,10 +205,10 @@ func (m *MMClient) UpdateChannels() error {
 	return nil
 }
 
-func (m *MMClient) UpdateChannelHeader(channelId string, header string) { //nolint:golint
-	channel := &model.Channel{Id: channelId, Header: header}
+func (m *MMClient) UpdateChannelHeader(channelId string, header *string) { //nolint:golint
+	channelPatch := &model.ChannelPatch{Header: header}
 	m.logger.Debugf("updating channelheader %#v, %#v", channelId, header)
-	_, resp := m.Client.UpdateChannel(channel)
+	_, resp := m.Client.PatchChannel(channelId, channelPatch)
 	if resp.Error != nil {
 		m.logger.Error(resp.Error)
 	}

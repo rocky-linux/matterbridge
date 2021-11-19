@@ -414,9 +414,9 @@ func (b *Bmattermost) changeChannelHeader(message config.Message) (string, error
 	b.Log.Debugf("changing channel header for %s to %s", message.Channel, header)
 
 	if b.mc6 != nil {
-		b.mc6.UpdateChannelHeader(id, header)
+		b.mc6.UpdateChannelHeader(id, &header)
 	} else {
-		b.mc.UpdateChannelHeader(id, header)
+		b.mc.UpdateChannelHeader(id, &header)
 	}
 	return "", nil
 }

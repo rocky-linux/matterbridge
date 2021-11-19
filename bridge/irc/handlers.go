@@ -268,10 +268,19 @@ func (b *Birc) handleTopicWhoTime(client *girc.Client, event girc.Event) {
 
 func (b *Birc) handleTopic(client *girc.Client, event girc.Event) {
 	/*
-	  TOPIC (332)
-	    "<client> <channel> :<topic>"
-	    Sent to a client when joining the <channel> to inform them of the current topic of the channel.
+	   TOPIC
+	   "<channel> [<topic>]"
+	   If the topic of a channel is changed or cleared, every client in
+	   that channel (including the author of the topic change) will
+	   receive a TOPIC command with the new topic as argument (or an empty
+	   argument if the topic was cleared) alerting them to how the topic
+	   has changed.
 	*/
+
+	// don't process our own topic changes
+	if event.Source.Ident == client.GetIdent() {
+		return
+	}
 
 	rmsg := config.Message{
 		Username: event.Source.Name,
