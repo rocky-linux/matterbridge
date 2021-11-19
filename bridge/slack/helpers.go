@@ -129,7 +129,18 @@ var (
 	topicOrPurposeRE = regexp.MustCompile(`(?s)(@.+) (cleared|set)(?: the)? channel (topic|purpose)(?:: (.*))?`)
 )
 
-func (b *Bslack) extractTopicOrPurpose(text string) (string, string) {
+func (b *Bslack) extractTopicOrPurpose(message *config.Message) (string, string) {
+
+	var text string
+
+	// Mattermost and IRC both clean the new topic before sending over the bridge, thus message.Text simply contains the new topic, or an empty string.
+	switch message.Protocol {
+	case "mattermost", "irc":
+		return "topic", message.Text
+	case "slack":
+		text = message.Text
+	}
+
 	r := topicOrPurposeRE.FindStringSubmatch(text)
 	if len(r) == 5 {
 		action, updateType, extracted := r[2], r[3], r[4]

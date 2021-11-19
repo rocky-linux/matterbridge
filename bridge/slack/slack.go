@@ -341,7 +341,7 @@ func (b *Bslack) sendRTM(msg config.Message) (string, error) {
 func (b *Bslack) updateTopicOrPurpose(msg *config.Message, channelInfo *slack.Channel) error {
 	var updateFunc func(channelID string, value string) (*slack.Channel, error)
 
-	incomingChangeType, text := b.extractTopicOrPurpose(msg.Text)
+	incomingChangeType, text := b.extractTopicOrPurpose(msg)
 	switch incomingChangeType {
 	case "topic":
 		updateFunc = b.rtm.SetTopicOfConversation
