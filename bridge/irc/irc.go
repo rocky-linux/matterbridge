@@ -384,3 +384,15 @@ func (b *Birc) storeNames(client *girc.Client, event girc.Event) {
 func (b *Birc) formatnicks(nicks []string) string {
 	return strings.Join(nicks, ", ") + " currently on IRC"
 }
+
+func (b *Birc) HandleTopicChange(msg *config.Message) string {
+	b.Log.Debugf("== Received topic change request for %s: %s", msg.Channel, msg.Text)
+
+	topic := b.cleanTopic(msg.Text)
+
+	b.Log.Debugf("new topic will be: %s", topic)
+
+	b.i.Cmd.Topic(msg.Channel, topic)
+
+	return ""
+}

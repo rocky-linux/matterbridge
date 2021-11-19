@@ -306,15 +306,3 @@ func (b *Birc) handleTopic(client *girc.Client, event girc.Event) {
 	b.Log.Debugf("<= Sending EventTopicChange from %s on %s to gateway", event.Params[0], b.Account)
 	b.Remote <- rmsg
 }
-
-func (b *Birc) HandleTopicChange(msg *config.Message) string {
-	b.Log.Debugf("== Received topic change request for %s: %s", msg.Channel, msg.Text)
-
-	topic := b.cleanTopic(msg.Text)
-
-	b.Log.Debugf("new topic will be: %s", topic)
-
-	b.i.Cmd.Topic(msg.Channel, topic)
-
-	return ""
-}
