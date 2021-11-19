@@ -3,7 +3,6 @@ package bmattermost
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/42wim/matterbridge/bridge/config"
@@ -359,26 +358,6 @@ func (b *Bmattermost) skipMessage6(message *matterclient6.Message) bool {
 	return false
 }
 
-// Extracts the old and new topics out of a a system "topic_change" notification
-func (b *Bmattermost) extractTopic(topic string) (topicold string, topicnew string) {
-	//[0018] DEBUG irc:          [Send:bridge/irc/irc.go:141] => Receiving config.Message{Text:"neil updated the channel header from: bananananananaana to: bananana2", Channel:"##potato", Username:"<neil> ", UserID:"x1wkd3eeepgafb536qg3bemncw", Avatar:"", Account:"mattermost.potato", Event:"topic_change", Protocol:"mattermost", Gateway:"gateway1", ParentID:"", Timestamp:time.Date(2021, time.November, 18, 14, 47, 15, 943182536, time.Local), ID:"", Extra:map[string][]interface {}{}}
-
-	var pattern = regexp.MustCompile(`^(?P<username>[\w\s]+)\s?updated the channel header from:\s?(?P<topicold>.*)\sto:\s?(?P<topicnew>.*)$`)
-	match := pattern.FindStringSubmatch(topic)
-
-	// Map capture groups into a map like result["username"], result["topicold"]
-	result := make(map[string]string)
-	for i, name := range pattern.SubexpNames() {
-		if i != 0 && name != "" {
-			result[name] = match[i]
-		}
-	}
-
-	topicold, topicnew = strings.TrimSpace(result["topicold"]), strings.TrimSpace(result["topicnew"])
-	b.Log.Debugf("extracted old topic '%s' and new topic '%s'", topicold, topicnew)
-	return
-}
-
 func (b *Bmattermost) getVersion() string {
 	proto := "https"
 
@@ -419,23 +398,25 @@ func (b *Bmattermost) getChannelID(channel string) (string, error) {
 	return id, nil
 }
 
-func (b *Bmattermost) changeChannelHeader(message config.Message) (bool, error) {
+func (b *Bmattermost) changeChannelHeader(message config.Message) (string, error) {
+
 	// not sure why this is here, assuming best practice from Bmattermost.JoinChannel()
 	if b.Account == mattermostPlugin {
-		return false, fmt.Errorf("ignoring this condition")
+		return "", fmt.Errorf("ignoring this condition")
 	}
 
 	id, err := b.getChannelID(message.Channel)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	var header = strings.TrimRight(message.Text, " ")
+	b.Log.Debugf("changing channel header for %s to %s", message.Channel, header)
 
 	if b.mc6 != nil {
 		b.mc6.UpdateChannelHeader(id, header)
 	} else {
 		b.mc.UpdateChannelHeader(id, header)
 	}
-	return true, nil
+	return "", nil
 }

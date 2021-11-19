@@ -142,14 +142,11 @@ func (b *Bmattermost) Send(msg config.Message) (string, error) {
 		return b.cacheAvatar(&msg)
 	}
 
-	// Topic Change propagation from other bridges
+	// Receiving Topic Change propagation from other bridges
 	if msg.Event == config.EventTopicChange {
 		b.Log.Debugf("== received EventTopicChange notification for Channel %s: %s", msg.Channel, msg.Text)
-		status, err := b.changeChannelHeader(msg)
-		if !status || err != nil {
-			return "", err
-		}
-		return "", nil
+
+		return b.changeChannelHeader(msg)
 	}
 
 	// Use webhook to send the message

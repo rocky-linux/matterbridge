@@ -268,7 +268,7 @@ func (b *Birc) handleTopicWhoTime(client *girc.Client, event girc.Event) {
 
 func (b *Birc) handleTopic(client *girc.Client, event girc.Event) {
 	/*
-	  RPL_TOPIC (332)
+	  TOPIC (332)
 	    "<client> <channel> :<topic>"
 	    Sent to a client when joining the <channel> to inform them of the current topic of the channel.
 	*/
@@ -301,7 +301,11 @@ func (b *Birc) handleTopic(client *girc.Client, event girc.Event) {
 func (b *Birc) HandleTopicChange(msg *config.Message) string {
 	b.Log.Debugf("== Received topic change request for %s: %s", msg.Channel, msg.Text)
 
-	b.i.Cmd.Topic(msg.Channel, msg.Text)
+	topic := b.cleanTopic(msg.Text)
+
+	b.Log.Debugf("new topic will be: %s", topic)
+
+	b.i.Cmd.Topic(msg.Channel, topic)
 
 	return ""
 }
