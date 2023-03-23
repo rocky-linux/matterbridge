@@ -260,12 +260,12 @@ func (m *Client) UpdateChannels() error {
 	return nil
 }
 
-func (m *Client) UpdateChannelHeader(channelID string, header string) {
-	channel := &model.Channel{Id: channelID, Header: header}
+func (m *Client) UpdateChannelHeader(channelID string, header *string) {
+	channelPatch := &model.ChannelPatch{Header: header}
 
 	m.logger.Debugf("updating channelheader %#v, %#v", channelID, header)
 
-	_, _, err := m.Client.UpdateChannel(channel)
+	_, _, err := m.Client.PatchChannel(channelID, channelPatch)
 	if err != nil {
 		m.logger.Error(err)
 	}

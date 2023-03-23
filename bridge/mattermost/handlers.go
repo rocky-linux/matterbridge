@@ -1,8 +1,6 @@
 package bmattermost
 
 import (
-	"fmt"
-
 	"github.com/42wim/matterbridge/bridge/config"
 	"github.com/42wim/matterbridge/bridge/helper"
 	"github.com/42wim/matterbridge/matterclient"
@@ -177,8 +175,11 @@ func (b *Bmattermost) handleMatterClient(messages chan *config.Message) {
 
 			rmsg.Event = config.EventTopicChange
 
-			p := message.Post.Props
-			rmsg.Text = fmt.Sprintf("%s", p["new_header"])
+			var ok bool
+			rmsg.Text, ok = message.Post.Props["new_header"].(string)
+			if !ok {
+				return
+			}
 		}
 
 		for _, id := range message.Post.FileIds {
@@ -242,8 +243,11 @@ func (b *Bmattermost) handleMatterClient6(messages chan *config.Message) {
 
 			rmsg.Event = config.EventTopicChange
 
-			p := message.Post.Props
-			rmsg.Text = fmt.Sprintf("%s", p["new_header"])
+			var ok bool
+			rmsg.Text, ok = message.Post.Props["new_header"].(string)
+			if !ok {
+				return
+			}
 		}
 
 		for _, id := range message.Post.FileIds {
